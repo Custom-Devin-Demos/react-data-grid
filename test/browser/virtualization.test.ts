@@ -8,7 +8,8 @@ function setupGrid(
   columnCount: number,
   rowCount: number,
   frozenColumnCount = 0,
-  summaryRowCount = 0
+  summaryRowCount = 0,
+  overscanThreshold?: number
 ) {
   const columns: Column<unknown>[] = [];
   const rows = new Array(rowCount);
@@ -31,7 +32,8 @@ function setupGrid(
     topSummaryRows,
     bottomSummaryRows,
     rowHeight,
-    enableVirtualization
+    enableVirtualization,
+    overscanThreshold
   });
 }
 
@@ -225,4 +227,48 @@ test('enableVirtualization is disabled', async () => {
 
   const cells = getCells();
   expect(cells).toHaveLength(40 * 100);
+});
+
+test('overscanThreshold with custom value of 0', async () => {
+  // With overscanThreshold=0, only visible rows are rendered (no overscan)
+  // Grid height is 1080px, header is 35px, so viewport is 1045px
+  // With rowHeight=35, visible rows = floor(1045/35) = 29 rows (indices 0-28)
+  await setupGrid(true, 1, 100, 0, 0, 0);
+
+  // With 0 overscan, we should see exactly the visible rows
+  assertRows(30, 0, 29);
+
+  // Scroll down and verify no extra rows are rendered
+  await scrollGrid({ scrollTop: 350 });
+  // At scrollTop=350, first visible row is 350/35=10, last visible is 10+29=39
+  assertRows(30, 10, 39);
+});
+
+test('overscanThreshold with custom value of 8', async () => {
+  // With overscanThreshold=8, 8 extra rows are rendered above and below viewport
+  await setupGrid(true, 1, 100, 0, 0, 8);
+
+  // Initial render: visible rows 0-29 + 8 overscan below = rows 0-37
+  // But overscan above is capped at 0, so we get rows 0-37 (38 rows)
+  assertRows(38, 0, 37);
+
+  // Scroll to middle and verify overscan on both sides
+  await scrollGrid({ scrollTop: 1000 });
+  // At scrollTop=1000, first visible row is floor(1000/35)=28, last visible is floor((1000+1045)/35)=58
+  // With 8 overscan: start = 28-8=20, end = 58+8=66
+  assertRows(47, 20, 66);
+});
+
+test('overscanThreshold with custom value of 2', async () => {
+  // With overscanThreshold=2, 2 extra rows are rendered above and below viewport
+  await setupGrid(true, 1, 100, 0, 0, 2);
+
+  // Initial render: visible rows 0-29 + 2 overscan below = rows 0-31
+  assertRows(32, 0, 31);
+
+  // Scroll down and verify smaller overscan
+  await scrollGrid({ scrollTop: 350 });
+  // At scrollTop=350, first visible row is 10, last visible is 39
+  // With 2 overscan: start = 10-2=8, end = 39+2=41
+  assertRows(34, 8, 41);
 });

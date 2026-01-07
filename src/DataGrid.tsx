@@ -220,6 +220,13 @@ export interface DataGridProps<R, SR = unknown, K extends Key = Key> extends Sha
    */
   /** @default true */
   enableVirtualization?: Maybe<boolean>;
+  /**
+   * Number of rows to render outside the viewport when virtualization is enabled.
+   * Higher values result in smoother scrolling but more DOM elements.
+   * Lower values reduce memory usage but may show blank rows during fast scrolling.
+   * @default 4
+   */
+  overscanThreshold?: Maybe<number>;
 
   /**
    * Miscellaneous
@@ -284,6 +291,7 @@ export function DataGrid<R, SR = unknown, K extends Key = Key>(props: DataGridPr
     onCellPaste,
     // Toggles and modes
     enableVirtualization: rawEnableVirtualization,
+    overscanThreshold,
     // Miscellaneous
     renderers,
     className,
@@ -447,7 +455,8 @@ export function DataGrid<R, SR = unknown, K extends Key = Key>(props: DataGridPr
     rowHeight,
     clientHeight,
     scrollTop,
-    enableVirtualization
+    enableVirtualization,
+    overscanThreshold: overscanThreshold ?? undefined
   });
 
   const viewportColumns = useViewportColumns({

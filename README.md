@@ -628,6 +628,27 @@ Callback triggered when columns are reordered.
 
 This prop can be used to disable virtualization.
 
+###### `overscanThreshold?: Maybe<number>`
+
+**Default:** `4`
+
+Controls the number of rows rendered outside the viewport when virtualization is enabled. This affects only row virtualization, not column virtualization.
+
+**Performance considerations:**
+
+- **Lower values (0-2):** Reduces memory usage and DOM elements, but may show blank rows during fast scrolling
+- **Default value (4):** Provides a good balance between performance and smooth scrolling for most use cases
+- **Higher values (8-20):** Smoother scrolling experience but increases memory usage and DOM element count
+- **Very high values (>50):** May negate the benefits of virtualization
+
+```tsx
+// Reduce overscan for memory-constrained environments
+<DataGrid columns={columns} rows={rows} overscanThreshold={2} />
+
+// Increase overscan for smoother scrolling with data-fetching rows
+<DataGrid columns={columns} rows={rows} overscanThreshold={10} />
+```
+
 ###### `renderers?: Maybe<Renderers<R, SR>>`
 
 Custom renderers for cells, rows, and other components.

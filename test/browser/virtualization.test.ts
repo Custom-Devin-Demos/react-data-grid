@@ -8,7 +8,8 @@ function setupGrid(
   columnCount: number,
   rowCount: number,
   frozenColumnCount = 0,
-  summaryRowCount = 0
+  summaryRowCount = 0,
+  overscanThreshold?: number
 ) {
   const columns: Column<unknown>[] = [];
   const rows = new Array(rowCount);
@@ -31,7 +32,8 @@ function setupGrid(
     topSummaryRows,
     bottomSummaryRows,
     rowHeight,
-    enableVirtualization
+    enableVirtualization,
+    overscanThreshold
   });
 }
 
@@ -189,6 +191,22 @@ test('virtualization is enabled with 2 summary rows', async () => {
     0, 1, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
     48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 102, 103
   ]);
+});
+
+test('overscanThreshold defaults to 4', async () => {
+  await setupGrid(true, 30, 100);
+  assertRows(34, 0, 33);
+});
+
+test('overscanThreshold can be customized with a larger value', async () => {
+  // A larger overscan renders more rows below the viewport than the default of 4.
+  await setupGrid(true, 30, 100, 0, 0, 8);
+  assertRows(38, 0, 37);
+});
+
+test('overscanThreshold of 0 renders only the visible rows', async () => {
+  await setupGrid(true, 30, 100, 0, 0, 0);
+  assertRows(30, 0, 29);
 });
 
 test('zero columns', async () => {

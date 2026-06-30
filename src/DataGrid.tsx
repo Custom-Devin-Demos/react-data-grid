@@ -220,6 +220,11 @@ export interface DataGridProps<R, SR = unknown, K extends Key = Key> extends Sha
    */
   /** @default true */
   enableVirtualization?: Maybe<boolean>;
+  /**
+   * The number of extra rows rendered above and below the visible viewport during virtualization.
+   * @default 4
+   */
+  overscanThreshold?: Maybe<number>;
 
   /**
    * Miscellaneous
@@ -284,6 +289,7 @@ export function DataGrid<R, SR = unknown, K extends Key = Key>(props: DataGridPr
     onCellPaste,
     // Toggles and modes
     enableVirtualization: rawEnableVirtualization,
+    overscanThreshold: rawOverscanThreshold,
     // Miscellaneous
     renderers,
     className,
@@ -318,6 +324,7 @@ export function DataGrid<R, SR = unknown, K extends Key = Key>(props: DataGridPr
     renderers?.renderCheckbox ?? defaultRenderers?.renderCheckbox ?? defaultRenderCheckbox;
   const noRowsFallback = renderers?.noRowsFallback ?? defaultRenderers?.noRowsFallback;
   const enableVirtualization = rawEnableVirtualization ?? true;
+  const overscanThreshold = rawOverscanThreshold ?? 4;
   const direction = rawDirection ?? 'ltr';
 
   /**
@@ -447,7 +454,8 @@ export function DataGrid<R, SR = unknown, K extends Key = Key>(props: DataGridPr
     rowHeight,
     clientHeight,
     scrollTop,
-    enableVirtualization
+    enableVirtualization,
+    overscanThreshold
   });
 
   const viewportColumns = useViewportColumns({

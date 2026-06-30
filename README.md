@@ -628,6 +628,12 @@ Callback triggered when columns are reordered.
 
 This prop can be used to disable virtualization.
 
+###### `overscanThreshold?: Maybe<number>`
+
+**Default:** `4`
+
+The number of extra rows rendered above and below the visible viewport during virtualization. Increasing it renders more off-screen rows (smoother scrolling, more DOM nodes); setting it to `0` renders only the visible rows. Negative values are clamped to `0`. This affects row virtualization only; column overscan is unchanged.
+
 ###### `renderers?: Maybe<Renderers<R, SR>>`
 
 Custom renderers for cells, rows, and other components.

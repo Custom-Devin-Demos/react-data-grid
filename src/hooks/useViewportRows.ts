@@ -8,6 +8,7 @@ interface ViewportRowsArgs<R> {
   clientHeight: number;
   scrollTop: number;
   enableVirtualization: boolean;
+  overscanThreshold: number;
 }
 
 export function useViewportRows<R>({
@@ -15,7 +16,8 @@ export function useViewportRows<R>({
   rowHeight,
   clientHeight,
   scrollTop,
-  enableVirtualization
+  enableVirtualization,
+  overscanThreshold
 }: ViewportRowsArgs<R>) {
   const { totalRowHeight, gridTemplateRows, getRowTop, getRowHeight, findRowIdx } = useMemo(() => {
     if (typeof rowHeight === 'number') {
@@ -108,11 +110,10 @@ export function useViewportRows<R>({
   let rowOverscanEndIdx = rows.length - 1;
 
   if (enableVirtualization) {
-    const overscanThreshold = 4;
     const rowVisibleStartIdx = findRowIdx(scrollTop);
     const rowVisibleEndIdx = findRowIdx(scrollTop + clientHeight);
-    rowOverscanStartIdx = max(0, rowVisibleStartIdx - overscanThreshold);
-    rowOverscanEndIdx = min(rows.length - 1, rowVisibleEndIdx + overscanThreshold);
+    rowOverscanStartIdx = max(0, rowVisibleStartIdx - max(0, overscanThreshold));
+    rowOverscanEndIdx = min(rows.length - 1, rowVisibleEndIdx + max(0, overscanThreshold));
   }
 
   return {
